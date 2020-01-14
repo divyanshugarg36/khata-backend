@@ -3,28 +3,22 @@ const jwt = require('jsonwebtoken');
 
 module.exports = {
   login: function(req, res) {
-    passport.authenticate('local', (err, user) => {
-      if (err || !user) {
-        return res.send({
-          info: 'failure'
-        });
+    passport.authenticate('local', (err, user, data) => {
+      if (err) {
+        return res.serverError(err);
       }
-      req.logIn(user, err => {
-        if (err) {
-          res.send({info: err});
-        }
+      else if (data) {
+        return res.badRequest(data);
+      }
+      else if (user) {
         const token = jwt.sign(user, sails.config.secret, { expiresIn: sails.config.expiresIn });
         req.session.cookie.token = token;
         return res.send({
-          info: 'success',
+          success: true,
           user,
           token
         });
-      });
+      }
     })(req, res);
-  },
-  logout: function(req, res) {
-    req.logout();
-    res.redirect('/');
   }
 };

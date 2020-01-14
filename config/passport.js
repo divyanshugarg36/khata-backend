@@ -1,6 +1,9 @@
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const bcrypt = require('bcrypt-nodejs');
+const { ERROR_TYPES } = require('../api/const/errorTypes');
+
+const { USER_NOT_FOUND, INCORRECT_PASSWORD } = ERROR_TYPES;
 
 passport.serializeUser((user, done) => {
   done(null, user.id);
@@ -21,24 +24,25 @@ passport.use(
     (username, password, done) => {
       User.findOne({ username: username }, (err, user) => {
         if (err) {
-          return done(err);
+          return done(err, null);
         }
         if (!user) {
-          return done(null, false, { message: 'Username not found' });
+          return done(null, null, {
+            type: USER_NOT_FOUND,
+            info: 'User not found!',
+            success: false,
+          });
         }
         bcrypt.compare(password, user.password, (err, res) => {
-          if (err) {
-            return done(null, false, { message: 'Error: ' + err.message });
+          if (err || !res) {
+            return done(null, null, {
+              type: INCORRECT_PASSWORD,
+              info: 'Password is incorrect!',
+              success: false,
+            });
+          } else {
+            return done(null, user);
           }
-          if (!res) {
-            return done(null, false, { message: 'Invalid Password' });
-          }
-          let userDetails = {
-            email: user.email,
-            username: user.username,
-            id: user.id
-          };
-          return done(null, userDetails, { message: 'Login Succesful' });
         });
       });
     }

@@ -5,13 +5,11 @@ module.exports = {
     email: {
       type: 'string',
       isEmail: true,
-      required: true,
-      unique: true
+      required: true
     },
     username: {
       type: 'string',
-      required: true,
-      unique: true
+      required: true
     },
     password: {
       type: 'string',
