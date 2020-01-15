@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 const { sendBadRequest } = require('../util/responses');
 const { ERROR_TYPES } = require('../const/errorTypes');
 
-const { EMAIL_ALREADY_USED, USERNAME_TAKEN } = ERROR_TYPES;
+const { DATA_MISSING, EMAIL_ALREADY_USED, USERNAME_TAKEN, USER_NOT_FOUND } = ERROR_TYPES;
 module.exports = {
   register: async (req, res) => {
     try {
@@ -32,7 +32,28 @@ module.exports = {
         token
       });
     } catch (err) {
-      res.serverError({info: err});
+      res.serverError(err);
+    }
+  },
+
+  fetch: async (req, res) => {
+    try {
+      const { email } = req.body;
+      if(!email) {
+        return sendBadRequest(res, DATA_MISSING);
+      }
+
+      const user = await User.findOne({ email });
+      if(!user) {
+        return sendBadRequest(res, USER_NOT_FOUND);
+      }
+
+      res.send({
+        success: true,
+        user
+      });
+    } catch (err) {
+      res.serverError(err);
     }
   },
 };
