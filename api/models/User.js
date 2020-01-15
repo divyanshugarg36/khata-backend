@@ -14,6 +14,13 @@ module.exports = {
     password: {
       type: 'string',
       required: true
+    },
+    role: {
+      type: 'string',
+      defaultsTo: 'member'
+    },
+    type: {
+      type: 'string'
     }
   },
   customToJSON: function() {

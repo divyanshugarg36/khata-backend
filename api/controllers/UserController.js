@@ -2,8 +2,46 @@ const jwt = require('jsonwebtoken');
 const { sendBadRequest } = require('../util/responses');
 const { ERROR_TYPES } = require('../const/errorTypes');
 
-const { DATA_MISSING, EMAIL_ALREADY_USED, USERNAME_TAKEN, USER_NOT_FOUND } = ERROR_TYPES;
+const { ACCESS_FORBIDDEN, DATA_MISSING, EMAIL_ALREADY_USED, USERNAME_TAKEN, USER_NOT_FOUND } = ERROR_TYPES;
+
 module.exports = {
+  fetch: async (req, res) => {
+    try {
+      const { email } = req.body;
+      if(!email) {
+        return sendBadRequest(res, DATA_MISSING);
+      }
+
+      const user = await User.findOne({ email });
+      if(!user) {
+        return sendBadRequest(res, USER_NOT_FOUND);
+      }
+
+      res.send({
+        success: true,
+        user
+      });
+    } catch (err) {
+      res.serverError(err);
+    }
+  },
+
+  fetchAll: async (req, res) => {
+    try {
+      const users = await User.find({});
+      if(!users) {
+        sendBadRequest(res, USER_NOT_FOUND);
+      }
+
+      res.send({
+        success: true,
+        users
+      });
+    } catch (err) {
+      res.serverError(err);
+    }
+  },
+
   register: async (req, res) => {
     try {
       const { email, password, username } = req.body;
@@ -36,21 +74,14 @@ module.exports = {
     }
   },
 
-  fetch: async (req, res) => {
+  verifyToken: async (req, res) => {
     try {
-      const { email } = req.body;
-      if(!email) {
-        return sendBadRequest(res, DATA_MISSING);
-      }
-
-      const user = await User.findOne({ email });
-      if(!user) {
-        return sendBadRequest(res, USER_NOT_FOUND);
-      }
-
-      res.send({
-        success: true,
-        user
+      const { token } = req.body;
+      jwt.verify(token, sails.config.secret, (err, token) => {
+        res.send({
+          success: !!err,
+          token
+        });
       });
     } catch (err) {
       res.serverError(err);

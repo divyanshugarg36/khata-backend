@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 
 module.exports = {
   login: function(req, res) {
+    console.log(req);
     passport.authenticate('local', (err, user, data) => {
       if (err) {
         return res.serverError(err);
