@@ -1,5 +1,5 @@
 module.exports.routes = {
-  '/login': 'AuthController.login',
-  '/register': 'UserController.register',
-  '/user/fetch': 'UserController.fetch',
+  'POST /login': 'AuthController.login',
+  'POST /register': 'UserController.register',
+  'POST /user/fetch': 'UserController.fetch',
 };
