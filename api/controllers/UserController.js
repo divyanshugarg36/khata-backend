@@ -79,7 +79,7 @@ module.exports = {
       const { token } = req.body;
       jwt.verify(token, sails.config.secret, (err, token) => {
         res.send({
-          success: !!err,
+          success: !err,
           token
         });
       });
