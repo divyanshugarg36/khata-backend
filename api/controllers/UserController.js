@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 const { sendBadRequest } = require('../util/responses');
 const { ERROR_TYPES } = require('../const/errorTypes');
 
-const { ACCESS_FORBIDDEN, DATA_MISSING, EMAIL_ALREADY_USED, USERNAME_TAKEN, USER_NOT_FOUND } = ERROR_TYPES;
+const { DATA_MISSING, EMAIL_ALREADY_USED, USERNAME_TAKEN, USER_NOT_FOUND } = ERROR_TYPES;
 
 module.exports = {
   fetch: async (req, res) => {
@@ -72,20 +72,6 @@ module.exports = {
     } catch (err) {
       res.serverError(err);
     }
-  },
-
-  verifyToken: async (req, res) => {
-    try {
-      const { token } = req.body;
-      jwt.verify(token, sails.config.secret, (err, token) => {
-        res.send({
-          success: !err,
-          token
-        });
-      });
-    } catch (err) {
-      res.serverError(err);
-    }
-  },
+  }
 };
 

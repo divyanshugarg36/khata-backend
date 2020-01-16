@@ -1,7 +1,7 @@
 module.exports.routes = {
   // Authorization
   'POST /login': 'AuthController.login',
-  'POST /verifytoken': 'UserController.verifyToken',
+  'POST /verifytoken': 'AuthController.verifyToken',
 
   // User
   'POST /register': 'UserController.register',
