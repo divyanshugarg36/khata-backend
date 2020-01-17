@@ -1,20 +1,20 @@
+const jwt = require('jsonwebtoken');
+
 module.exports = (headers) => {
   try {
-    if(headers.common && headers.common.Authorization) {
-      const token = req.headers.common.Authorization;
-      jwt.verify(token, sails.config.secret, (err) => {
-        if(err) {
-          return {
-            success: !error,
-          };
-        }
+    if(headers.authorization) {
+      const token = headers.authorization;
+      return jwt.verify(token, sails.config.secret, (err, token) => {
+        return {
+          success: !err,
+          user: token
+        };
       });
-    } else {
-      return {
-        success: false,
-      };
     }
   } catch (err) {
-    res.serverError(err);
+    return {
+      error: err,
+      success: false,
+    };
   }
 };
