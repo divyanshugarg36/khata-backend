@@ -17,10 +17,7 @@ module.exports = {
     },
     role: {
       type: 'string',
-      defaultsTo: 'member'
-    },
-    type: {
-      type: 'string'
+      defaultsTo: 'employee'
     }
   },
   customToJSON: function() {

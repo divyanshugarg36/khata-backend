@@ -21,6 +21,9 @@ module.exports = {
     },
     active: {
       type: 'boolean'
+    },
+    type: {
+      type: 'string'
     }
   },
 };
