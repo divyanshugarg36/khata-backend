@@ -1,9 +1,5 @@
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
-const { sendBadRequest } = require('../util/responses');
-const { ERROR_TYPES } = require('../const/errorTypes');
-
-const { INVALID_TOKEN } = ERROR_TYPES;
 
 module.exports = {
   login: function(req, res) {
@@ -25,22 +21,5 @@ module.exports = {
         });
       }
     })(req, res);
-  },
-
-  verifyToken: async (req, res) => {
-    try {
-      const { token } = req.body;
-      jwt.verify(token, sails.config.secret, (err, token) => {
-        if(err) {
-          return sendBadRequest(res, INVALID_TOKEN);
-        }
-        res.send({
-          success: true,
-          token
-        });
-      });
-    } catch (err) {
-      res.serverError(err);
-    }
   },
 };

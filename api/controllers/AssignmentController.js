@@ -5,14 +5,19 @@
  * @help        :: See https://sailsjs.com/docs/concepts/actions
  */
 
-const { sendBadRequest } = require('../util/responses');
+const { sendBadRequest } = require('../util');
 const { ERROR_TYPES } = require('../const/errorTypes');
 
-const { DATA_MISSING, NOT_FOUND } = ERROR_TYPES;
+const { ACCESS_FORBIDDEN, DATA_MISSING, NOT_FOUND } = ERROR_TYPES;
 
 module.exports = {
   create: async (req, res) => {
     try {
+      const verified = verifyToken(req.headers);
+      if(!verified.success) {
+        return sendBadRequest(res, ACCESS_FORBIDDEN);
+      }
+
       const { body: data } = req;
       if(!data.user || !data.project) {
         return res.sendBadRequest(res, DATA_MISSING);
@@ -30,6 +35,11 @@ module.exports = {
 
   view: async (req, res) => {
     try {
+      const verified = verifyToken(req.headers);
+      if(!verified.success) {
+        return sendBadRequest(res, ACCESS_FORBIDDEN);
+      }
+
       const { id } = req.body;
       if(!id) {
         return sendBadRequest(res, DATA_MISSING);
@@ -51,6 +61,11 @@ module.exports = {
 
   update: async (req, res) => {
     try {
+      const verified = verifyToken(req.headers);
+      if(!verified.success) {
+        return sendBadRequest(res, ACCESS_FORBIDDEN);
+      }
+
       const { body: data } = req;
       if(!data.id) {
         return sendBadRequest(res, DATA_MISSING);
@@ -72,6 +87,11 @@ module.exports = {
 
   delete: async (req, res) => {
     try {
+      const verified = verifyToken(req.headers);
+      if(!verified.success) {
+        return sendBadRequest(res, ACCESS_FORBIDDEN);
+      }
+
       const { id } = req.body;
       if(!id) {
         return sendBadRequest(res, DATA_MISSING);
