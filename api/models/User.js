@@ -20,8 +20,18 @@ module.exports = {
       defaultsTo: 'employee'
     }
   },
+
   customToJSON: function() {
     return _.omit(this, ['password']);
   },
-  beforeCreate: generateHash
+
+  beforeCreate: function (user, done) {
+    generateHash(user.password, (err, hash) => {
+      if(err) {
+        return done(err);
+      }
+      user.password = hash;
+      done();
+    });
+  },
 };
