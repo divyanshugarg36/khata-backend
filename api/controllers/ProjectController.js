@@ -2,12 +2,14 @@ const {
   create,
   view,
   update,
-  remove
+  remove,
+  fetchAll,
 } = require('../services/project');
 
 module.exports = {
   create,
   view,
   update,
-  remove
+  remove,
+  fetchAll,
 };
