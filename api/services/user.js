@@ -4,7 +4,6 @@ const { ERROR_TYPES } = require('../const/errorTypes');
 
 const { ACCESS_FORBIDDEN, DATA_MISSING, EMAIL_ALREADY_USED, USERNAME_TAKEN, USER_NOT_FOUND } = ERROR_TYPES;
 
-// To fetch the details of a user
 const fetch = async (req, res) => {
   try {
     const verified = verifyToken(req.headers);
@@ -31,7 +30,6 @@ const fetch = async (req, res) => {
   }
 };
 
-// To fetch the list of all users with their details
 const fetchAll = async (req, res) => {
   try {
     const verified = verifyToken(req.headers);
@@ -53,7 +51,6 @@ const fetchAll = async (req, res) => {
   }
 };
 
-// To register a new user in database
 const register = async (req, res) => {
   try {
     const { email, password, username } = req.body;
@@ -74,8 +71,6 @@ const register = async (req, res) => {
 
     const user = await User.create({ email, password, username }).fetch();
 
-    console.log(user);
-
     const token = jwt.sign(user, sails.config.secret, { expiresIn: sails.config.expiresIn });
     req.session.cookie.token = token;
     res.send({
@@ -88,7 +83,6 @@ const register = async (req, res) => {
   }
 };
 
-// To update the details of the user
 const update = async (req, res) => {
   const verified = verifyToken(req.headers);
   if(!verified || !verified.success) {
