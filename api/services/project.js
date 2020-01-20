@@ -18,16 +18,12 @@ const create = async (req, res) => {
 
     data.admin = verified.user.id;
     const project = await Project.create(data).fetch();
-    res.send({
-      success: true,
-      project
-    });
 
     req.body = {
       user: data.admin,
       project: project.id,
     };
-    createAssignment(req, res, true);
+    createAssignment(req, res, true, project);
 
   } catch (err) {
     res.serverError(err);
@@ -120,14 +116,13 @@ const fetchAll = async (req, res) => {
     }
 
     const user = req.body.user && verified.user.id;
-    const projects = [];
     const assignments = await Assignment.find({ user });
-    for(let assignment of assignments.values()) {
-      projects.push(await Project.findOne({ id: assignment.project }));
+    for(let key in assignments) {
+      assignments[key].project = await Project.findOne({ id: assignments[key].project });
     }
     res.send({
       success: true,
-      projects
+      assignment: assignments
     });
   } catch (err) {
     res.serverError(err);

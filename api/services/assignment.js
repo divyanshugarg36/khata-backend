@@ -3,7 +3,7 @@ const { ERROR_TYPES } = require('../const/errorTypes');
 
 const { ACCESS_FORBIDDEN, DATA_MISSING, NOT_FOUND } = ERROR_TYPES;
 
-const create = async (req, res, isVerified = false) => {
+const create = async (req, res, isVerified = false, project = null) => {
   try {
     if(!isVerified) {
       const verified = verifyToken(req.headers);
@@ -18,6 +18,9 @@ const create = async (req, res, isVerified = false) => {
     }
 
     const assignment = await Assignment.create(data).fetch();
+    if(project) {
+      assignment.project = project;
+    }
     res.send({
       success: true,
       assignment
