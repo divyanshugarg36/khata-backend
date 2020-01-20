@@ -1,13 +1,15 @@
-const { sendBadRequest } = require('../util');
+const { sendBadRequest, verifyToken } = require('../util');
 const { ERROR_TYPES } = require('../const/errorTypes');
 
 const { ACCESS_FORBIDDEN, DATA_MISSING, NOT_FOUND } = ERROR_TYPES;
 
-const create = async (req, res) => {
+const create = async (req, res, isVerified = false) => {
   try {
-    const verified = verifyToken(req.headers);
-    if(!verified || !verified.success) {
-      return sendBadRequest(res, ACCESS_FORBIDDEN);
+    if(!isVerified) {
+      const verified = verifyToken(req.headers);
+      if(!verified || !verified.success) {
+        return sendBadRequest(res, ACCESS_FORBIDDEN);
+      }
     }
 
     const { body: data } = req;

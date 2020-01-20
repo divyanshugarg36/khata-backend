@@ -20,7 +20,8 @@ module.exports = {
       type: 'number'
     },
     active: {
-      type: 'boolean'
+      type: 'boolean',
+      defaultsTo: true
     },
     type: {
       type: 'string'
