@@ -13,14 +13,17 @@ const create = async (req, res) => {
 
     const { body: data } = req;
     if(!data.name) {
-      return res.sendBadRequest(res, DATA_MISSING);
+      return sendBadRequest(res, DATA_MISSING);
     }
 
-    data.admin = verified.user.id;
+    data.contributors = {
+      admin: verified.user.id,
+      members: [],
+    };
     const project = await Project.create(data).fetch();
 
     req.body = {
-      user: data.admin,
+      user: data.contributors.admin,
       project: project.id,
     };
     createAssignment(req, res, true, project);

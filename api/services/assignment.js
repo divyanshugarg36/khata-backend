@@ -14,7 +14,7 @@ const create = async (req, res, isVerified = false, project = null) => {
 
     const { body: data } = req;
     if(!data.user || !data.project) {
-      return res.sendBadRequest(res, DATA_MISSING);
+      return sendBadRequest(res, DATA_MISSING);
     }
 
     const assignment = await Assignment.create(data).fetch();

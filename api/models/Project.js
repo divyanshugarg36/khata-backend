@@ -7,8 +7,13 @@ module.exports = {
     description: {
       type: 'string',
     },
-    admin: {
-      type: 'string',
+    contributors: {
+      type: 'json',
+      columnType: 'object',
+      defaultsTo: {
+        admin: '',
+        members: [],
+      },
     },
   },
 };

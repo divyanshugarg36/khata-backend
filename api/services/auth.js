@@ -35,7 +35,7 @@ const verifyPassword = async (req, res) => {
 
     const { body: data } = req;
     if(!data.password) {
-      return res.sendBadRequest(res, DATA_MISSING);
+      return sendBadRequest(res, DATA_MISSING);
     }
 
     req.body.username = verified.user.username;
