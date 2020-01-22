@@ -90,6 +90,17 @@ const update = async (req, res) => {
   }
 
   const { email, username, newPassword } = req.body;
+
+  const emailResult = await User.findOne({ email });
+  if(emailResult) {
+    return sendBadRequest(res, EMAIL_ALREADY_USED);
+  }
+
+  const userResult = await User.findOne({ username });
+  if(userResult) {
+    return sendBadRequest(res, USERNAME_TAKEN);
+  }
+
   const data = {
     email,
     username,
