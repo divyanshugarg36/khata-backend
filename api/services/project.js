@@ -118,7 +118,7 @@ const fetchAll = async (req, res) => {
       return sendBadRequest(res, ACCESS_FORBIDDEN);
     }
 
-    const user = req.body.user && verified.user.id;
+    const user = req.body.user || verified.user.id;
     const assignments = await Assignment.find({ user });
     for(let key in assignments) {
       assignments[key].project = await Project.findOne({ id: assignments[key].project });
