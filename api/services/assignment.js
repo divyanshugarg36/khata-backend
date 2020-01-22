@@ -30,23 +30,29 @@ const create = async (req, res, isVerified = false, project = null) => {
   }
 };
 
-const view = async (req, res) => {
+const view = async (req, res, projectData = null) => {
   try {
     const verified = verifyToken(req.headers);
     if(!verified || !verified.success) {
       return sendBadRequest(res, ACCESS_FORBIDDEN);
     }
 
-    const { id } = req.body;
-    if(!id) {
-      return sendBadRequest(res, DATA_MISSING);
+    let assignment;
+    const { user, project } = projectData;
+    if(projectData) {
+      assignment = await Assignment.findOne({ user, project: project.id });
+    } else {
+      const { id } = req.body;
+      if(!id) {
+        return sendBadRequest(res, DATA_MISSING);
+      }
+      assignment = await Assignment.findOne({ id });
     }
 
-    const assignment = await Assignment.findOne({ id });
     if(!assignment) {
       return sendBadRequest(res, NOT_FOUND);
     }
-
+    assignment.project = project;
     res.send({
       success: true,
       assignment
