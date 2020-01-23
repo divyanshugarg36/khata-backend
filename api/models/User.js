@@ -15,6 +15,9 @@ module.exports = {
       type: 'string',
       required: true
     },
+    name: {
+      type: 'string'
+    },
     role: {
       type: 'string',
       defaultsTo: 'employee'

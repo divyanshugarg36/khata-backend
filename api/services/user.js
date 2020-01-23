@@ -89,7 +89,7 @@ const update = async (req, res) => {
     return sendBadRequest(res, ACCESS_FORBIDDEN);
   }
 
-  const { email, username, newPassword } = req.body;
+  const { name, email, username, newPassword } = req.body;
 
   const emailResult = await User.findOne({ email });
   if(emailResult) {
@@ -102,6 +102,7 @@ const update = async (req, res) => {
   }
 
   const data = {
+    name,
     email,
     username,
     password: newPassword
