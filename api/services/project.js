@@ -54,6 +54,13 @@ const view = async (req, res) => {
       return sendBadRequest(res, NOT_FOUND);
     }
 
+    const { admin, members } = project.contributors;
+    project.contributors.admin = await User.findOne({ id: admin });
+    members.forEach(async (id, index) => {
+      const user = await User.findOne({ id });
+      project.contributors.members[index] = user;
+    });
+    
     const data = {
       user: verified.user.id,
       project,
