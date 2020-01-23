@@ -2,7 +2,7 @@ const { sendBadRequest, verifyToken } = require('../util');
 const { ERROR_TYPES } = require('../const/errorTypes');
 const { create: createAssignment, view: viewAssignment } = require('./assignment');
 
-const { ACCESS_FORBIDDEN, DATA_MISSING, NOT_FOUND } = ERROR_TYPES;
+const { ACCESS_FORBIDDEN, DATA_MISSING, MEMBER_ALREADY_ADDED, NOT_FOUND, USER_NOT_FOUND } = ERROR_TYPES;
 
 const create = async (req, res) => {
   try {
@@ -54,18 +54,25 @@ const view = async (req, res) => {
       return sendBadRequest(res, NOT_FOUND);
     }
 
-    const { admin, members } = project.contributors;
+    let { admin, members } = project.contributors;
+    if(members.length === 0) {
+      members = [''];
+    }
     project.contributors.admin = await User.findOne({ id: admin });
     members.forEach(async (id, index) => {
-      const user = await User.findOne({ id });
-      project.contributors.members[index] = user;
+      if(id) {
+        const user = await User.findOne({ id });
+        project.contributors.members[index] = user;
+      }
+
+      if(index === (members.length - 1)) {
+        const data = {
+          user: verified.user.id,
+          project,
+        };
+        viewAssignment(req, res, data);
+      }
     });
-    
-    const data = {
-      user: verified.user.id,
-      project,
-    };
-    viewAssignment(req, res, data);
 
   } catch (err) {
     res.serverError(err);
@@ -145,11 +152,56 @@ const fetchAll = async (req, res) => {
   }
 };
 
+const addMember = async (req, res) => {
+  try {
+    const verified = verifyToken(req.headers);
+    if(!verified || !verified.success) {
+      return sendBadRequest(res, ACCESS_FORBIDDEN);
+    }
+
+    const { user, project, price } = req.body;
+    if(!user || !price) {
+      return sendBadRequest(res, DATA_MISSING);
+    }
+
+    const userResult = await User.findOne({ username: user });
+    if(!userResult) {
+      return sendBadRequest(res, USER_NOT_FOUND);
+    }
+
+    const data = await Project.findOne({ id: project });
+    if(data.contributors.members.includes(userResult.id)) {
+      return sendBadRequest(res, MEMBER_ALREADY_ADDED);
+    }
+    data.contributors.members.push(userResult.id);
+
+    const result = await Project.updateOne({ id: project }).set(data);
+
+    let { admin, members } = result.contributors;
+    if(members.length === 0) {
+      members = [''];
+    }
+    result.contributors.admin = await User.findOne({ id: admin });
+    members.forEach(async (id, index) => {
+      if(id) {
+        const user = await User.findOne({ id });
+        result.contributors.members[index] = user;
+      }
+
+      if(index === (members.length - 1)) createAssignment(req, res, true, result);
+    });
+
+  } catch (err) {
+    res.serverError(err);
+  }
+};
+
 module.exports = {
   create,
   view,
   update,
   remove,
   fetchAll,
+  addMember,
 };
 
