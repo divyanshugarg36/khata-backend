@@ -9,7 +9,7 @@ module.exports = {
       required: true
     },
     price: {
-      type: 'number'
+      type: 'string'
     },
     active: {
       type: 'boolean',
