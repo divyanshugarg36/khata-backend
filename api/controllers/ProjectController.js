@@ -5,6 +5,7 @@ const {
   remove,
   fetchAll,
   addMember,
+  removeMember,
 } = require('../services/project');
 
 module.exports = {
@@ -14,4 +15,5 @@ module.exports = {
   remove,
   fetchAll,
   addMember,
+  removeMember,
 };

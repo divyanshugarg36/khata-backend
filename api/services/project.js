@@ -1,6 +1,6 @@
 const { sendBadRequest, verifyToken } = require('../util');
 const { ERROR_TYPES } = require('../const/errorTypes');
-const { create: createAssignment, view: viewAssignment } = require('./assignment');
+const { create: createAssignment, view: viewAssignment, unassign } = require('./assignment');
 
 const { ACCESS_FORBIDDEN, DATA_MISSING, MEMBER_ALREADY_ADDED, NOT_FOUND, USER_NOT_FOUND } = ERROR_TYPES;
 
@@ -139,7 +139,7 @@ const fetchAll = async (req, res) => {
     }
 
     const user = req.body.user || verified.user.id;
-    const assignments = await Assignment.find({ user });
+    const assignments = await Assignment.find({ user, active: true });
     for(let key in assignments) {
       assignments[key].project = await Project.findOne({ id: assignments[key].project });
     }
@@ -174,6 +174,7 @@ const addMember = async (req, res) => {
       return sendBadRequest(res, MEMBER_ALREADY_ADDED);
     }
     data.contributors.members.push(userResult.id);
+    req.body.user = userResult.id;
 
     const result = await Project.updateOne({ id: project }).set(data);
 
@@ -196,6 +197,33 @@ const addMember = async (req, res) => {
   }
 };
 
+const removeMember = async (req, res) => {
+  try {
+    const verified = verifyToken(req.headers);
+    if(!verified || !verified.success) {
+      return sendBadRequest(res, ACCESS_FORBIDDEN);
+    }
+
+    const { user, project } = req.body;
+    if(!user || !project) {
+      return sendBadRequest(res, DATA_MISSING);
+    }
+
+    const result = await Project.findOne({ id: project });
+    if(!result) {
+      return sendBadRequest(res, NOT_FOUND);
+    }
+    result.contributors.members.splice(result.contributors.members.indexOf(user), 1);
+
+    await Project.updateOne({ id: project }).set(result);
+
+    unassign(req, res);
+
+  } catch(err) {
+    res.serverError(err);
+  }
+}
+
 module.exports = {
   create,
   view,
@@ -203,5 +231,6 @@ module.exports = {
   remove,
   fetchAll,
   addMember,
+  removeMember,
 };
 

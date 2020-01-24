@@ -1,7 +1,7 @@
 const { sendBadRequest, verifyToken } = require('../util');
 const { ERROR_TYPES } = require('../const/errorTypes');
 
-const { ACCESS_FORBIDDEN, DATA_MISSING, NOT_FOUND } = ERROR_TYPES;
+const { ACTION_FAILED, ACCESS_FORBIDDEN, DATA_MISSING, NOT_FOUND } = ERROR_TYPES;
 
 const create = async (req, res, isVerified = false, project = null) => {
   try {
@@ -114,10 +114,28 @@ const remove = async (req, res) => {
   }
 };
 
+const unassign = async (req, res) => {
+  try {
+    const { user, project } = req.body;
+    const assignment = await Assignment.findOne({ user, project, active: true });
+    assignment.active = false;
+    const result = await Assignment.updateOne({ user, project, active: true }).set(assignment);
+    if(!result) { 
+      return sendBadRequest(res, ACTION_FAILED);
+    }
+
+    res.send({
+      success: true
+    })
+  } catch (err) {
+    res.serverError(err);
+  }
+}
+
 module.exports = {
   create,
   view,
   update,
-  remove
+  remove,
+  unassign,
 };
-

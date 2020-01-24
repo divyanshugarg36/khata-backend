@@ -16,4 +16,5 @@ module.exports.routes = {
   'DELETE /project/remove': 'ProjectController.remove',
   'POST /project/all': 'ProjectController.fetchAll',
   'POST /project/member/add': 'ProjectController.addMember',
+  'POST /project/member/remove': 'ProjectController.removeMember',
 };

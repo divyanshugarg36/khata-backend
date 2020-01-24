@@ -1,5 +1,6 @@
 module.exports.ERROR_INFO = {
   'ACCESS_FORBIDDEN': 'Access is forbidden!',
+  'ACTION_FAILED': 'Action failed!',
   'DATA_MISSING': 'Data is missing!',
   'EMAIL_ALREADY_USED':'Email already exists!',
   'INCORRECT_PASSWORD': 'Password is incorrect!',
