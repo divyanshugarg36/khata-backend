@@ -122,6 +122,13 @@ const remove = async (req, res) => {
       return sendBadRequest(res, NOT_FOUND);
     }
 
+    req.body = {
+      user: verified.user.id,
+      project: id
+    };
+
+    unassign(req, res);
+
     res.send({
       success: true,
       project
@@ -218,7 +225,10 @@ const removeMember = async (req, res) => {
     await Project.updateOne({ id: project }).set(result);
 
     unassign(req, res);
-
+    
+    res.send({
+      success: true
+    });
   } catch(err) {
     res.serverError(err);
   }

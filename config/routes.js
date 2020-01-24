@@ -13,7 +13,7 @@ module.exports.routes = {
   'POST /project/add': 'ProjectController.create',
   'POST /project/view': 'ProjectController.view',
   'PUT /project/update': 'ProjectController.update',
-  'DELETE /project/remove': 'ProjectController.remove',
+  'POST /project/remove': 'ProjectController.remove',
   'POST /project/all': 'ProjectController.fetchAll',
   'POST /project/member/add': 'ProjectController.addMember',
   'POST /project/member/remove': 'ProjectController.removeMember',

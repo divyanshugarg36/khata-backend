@@ -123,10 +123,6 @@ const unassign = async (req, res) => {
     if(!result) { 
       return sendBadRequest(res, ACTION_FAILED);
     }
-
-    res.send({
-      success: true
-    })
   } catch (err) {
     res.serverError(err);
   }
