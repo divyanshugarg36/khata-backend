@@ -1,5 +1,5 @@
 module.exports.models = {
-  migrate: 'alter',
+  migrate: 'safe',
   attributes: {
     createdAt: { type: 'number', autoCreatedAt: true, },
     updatedAt: { type: 'number', autoUpdatedAt: true, },
