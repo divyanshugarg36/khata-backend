@@ -6,5 +6,16 @@ module.exports = {
     password: 'superpass',
     database: 'khata'
   },
-  'expiresIn':60 * 60 * 24 * 7,
+  sockets: {
+    onlyAllowOrigins: ['https://skillshape.netlify.com', 'http://localhost:8000','https://app-skillshape.herokuapp.com','https://app.skillshape.com']
+  },
+  session:{
+    cookie:{
+      secure:true
+    }
+  },
+  http:{
+    trustProxy:true
+  },
+  expiresIn:60 * 60 * 24 * 7,
 };
