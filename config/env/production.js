@@ -1,7 +1,7 @@
 module.exports = {
   'mongo':{
-    host: '...',
-    port: 0,
+    host: 'khata-p3bjd.mongodb.net',
+    port: '',
     user: 'superuser',
     password: 'superpass',
     database: 'khata'
