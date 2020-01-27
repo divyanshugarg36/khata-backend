@@ -1,5 +1,5 @@
 module.exports = {
-  mongoURL:'mongodb://superuser:superpass@khata-p3bjd.mongodb.net/khata?authSource=admin&replicaSet=khata-shard-0&w=majority&readPreference=primary&ssl=true',
+  mongoURL:'mongodb://superuser:superpass@khata-p3bjd.mongodb.net/khata',
   sockets: {
     onlyAllowOrigins: ['http://localhost:3000','https://khata-ryaz.herokuapp.com']
   },
