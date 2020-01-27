@@ -3,8 +3,10 @@ const { ERROR_TYPES } = require('../const/errorTypes');
 
 const { ACTION_FAILED, ACCESS_FORBIDDEN, DATA_MISSING, NOT_FOUND } = ERROR_TYPES;
 
+// To create a new assignment (Project -> User [or] User -> Project)
 const create = async (req, res, isVerified = false, project = null) => {
   try {
+    // Skip if token is already verified
     if(!isVerified) {
       const verified = verifyToken(req.headers);
       if(!verified || !verified.success) {
@@ -12,11 +14,13 @@ const create = async (req, res, isVerified = false, project = null) => {
       }
     }
 
+    // To check if required data is provided
     const { body: data } = req;
     if(!data.user || !data.project) {
       return sendBadRequest(res, DATA_MISSING);
     }
 
+    // Creates the assignment
     const assignment = await Assignment.create(data).fetch();
     if(project) {
       assignment.project = project;
@@ -30,8 +34,10 @@ const create = async (req, res, isVerified = false, project = null) => {
   }
 };
 
+// To view the details of an assignment
 const view = async (req, res, projectData = null) => {
   try {
+    // Verify the token to authenticate the user
     const verified = verifyToken(req.headers);
     if(!verified || !verified.success) {
       return sendBadRequest(res, ACCESS_FORBIDDEN);
@@ -39,6 +45,8 @@ const view = async (req, res, projectData = null) => {
 
     let assignment;
     const { user, project } = projectData;
+
+    // To find the assignment from user and project ID, otherwise from assignment ID
     if(projectData) {
       assignment = await Assignment.findOne({ user, project: project.id });
     } else {
@@ -52,6 +60,7 @@ const view = async (req, res, projectData = null) => {
     if(!assignment) {
       return sendBadRequest(res, NOT_FOUND);
     }
+    // Add project details in assignment for sending response to client
     assignment.project = project;
     res.send({
       success: true,
@@ -62,8 +71,10 @@ const view = async (req, res, projectData = null) => {
   }
 };
 
+// To update the information in assignment
 const update = async (req, res) => {
   try {
+    // Verify the token to authenticate the user
     const verified = verifyToken(req.headers);
     if(!verified || !verified.success) {
       return sendBadRequest(res, ACCESS_FORBIDDEN);
@@ -74,6 +85,7 @@ const update = async (req, res) => {
       return sendBadRequest(res, DATA_MISSING);
     }
 
+    // Updates the information
     const assignment = await Assignment.updateOne({ id: data.id }).set(data);
     if(!assignment) {
       return sendBadRequest(res, NOT_FOUND);
@@ -88,8 +100,10 @@ const update = async (req, res) => {
   }
 };
 
+// Removes the assignment from database
 const remove = async (req, res) => {
   try {
+    // Verify the token to authenticate the user
     const verified = verifyToken(req.headers);
     if(!verified || !verified.success) {
       return sendBadRequest(res, ACCESS_FORBIDDEN);
@@ -100,6 +114,7 @@ const remove = async (req, res) => {
       return sendBadRequest(res, DATA_MISSING);
     }
 
+    // Deletes the assignment
     const assignment = await Assignment.destroy({ id }).fetch();
     if(!assignment) {
       return sendBadRequest(res, NOT_FOUND);
@@ -114,11 +129,16 @@ const remove = async (req, res) => {
   }
 };
 
+// To make the assignment unactive
 const unassign = async (req, res) => {
   try {
     const { user, project } = req.body;
+
+    // Finds the assignment
     const assignment = await Assignment.findOne({ user, project, active: true });
     assignment.active = false;
+    
+    // Updates the assignment
     const result = await Assignment.updateOne({ user, project, active: true }).set(assignment);
     if(!result) { 
       return sendBadRequest(res, ACTION_FAILED);
