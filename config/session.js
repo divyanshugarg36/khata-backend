@@ -20,7 +20,11 @@ module.exports.session = {
   ***************************************************************************/
   secret: 'f55d8da0a38eba56ee2e05945c3649a3',
 
-
+  session: {
+    cookie: {
+      secure: true
+    }
+  }
   /***************************************************************************
   *                                                                          *
   * Customize when built-in session support will be skipped.                 *
