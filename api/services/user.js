@@ -108,13 +108,13 @@ const update = async (req, res) => {
     
     // To check if email address already exists
     const emailResult = await User.findOne({ email });
-    if(emailResult) {
+    if(emailResult && email !== verified.user.email) {
       return sendBadRequest(res, EMAIL_ALREADY_USED);
     }
     
     // To check if username is already taken
     const userResult = await User.findOne({ username });
-    if(userResult) {
+    if(userResult && username !== verified.user.username) {
       return sendBadRequest(res, USERNAME_TAKEN);
     }
     
