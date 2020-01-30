@@ -1,8 +1,7 @@
 const { sendBadRequest, verifyToken } = require('../util');
 const { ERROR_TYPES } = require('../const/errorTypes');
-const { create: createAssignment, view: viewAssignment, unassign } = require('./assignment');
 
-const { ACCESS_FORBIDDEN, DATA_MISSING, MEMBER_ALREADY_ADDED, NOT_FOUND, USER_NOT_FOUND } = ERROR_TYPES;
+const { ACTION_FAILED, ACCESS_FORBIDDEN, DATA_MISSING, MEMBER_ALREADY_ADDED, NOT_FOUND, USER_NOT_FOUND } = ERROR_TYPES;
 
 // To create a new project by the admin
 const create = async (req, res) => {
@@ -13,31 +12,29 @@ const create = async (req, res) => {
       return sendBadRequest(res, ACCESS_FORBIDDEN);
     }
 
-    const { body: data } = req;
-    if(!data.name) {
+    const { name, description, price, type } = req.body;
+    if(!name || !description || !price || !type) {
       return sendBadRequest(res, DATA_MISSING);
     }
 
     // Set current logged in user as the admin of project
-    data.contributors = {
-      admin: verified.user.id,
-      members: [],
+    const admin = {
+      id: verified.user.id,
+      price,
+      type,
     };
 
     // Creates the project now
-    const { name, description, contributors } = data;
-    const project = await Project.create({ name, description, contributors }).fetch();
-
-    // Data required for the assignment
-    req.body = {
-      user: data.contributors.admin,
-      project: project.id,
-      price: data.price,
-      type: data.type,
-    };
-    // After creating project, create the assignment as well
-    createAssignment(req, res, true, project);
-
+    const project = await Project.create({ name, description, admin }).fetch();
+    if(!project) {
+      return sendBadRequest(res, ACTION_FAILED)
+    }
+    
+    res.send({
+      success: true,
+      project
+    });
+    
   } catch (err) {
     res.serverError(err);
   }
@@ -64,31 +61,17 @@ const view = async (req, res) => {
       return sendBadRequest(res, NOT_FOUND);
     }
 
-    let { admin, members } = project.contributors;
-    if(members.length === 0) {
-      members = [''];
-    }
-    // Get the details of admin of project
-    project.contributors.admin = await User.findOne({ id: admin });
+    project.isAdmin = project.admin.id === verified.user.id;
 
-    // Get the details of the all members in project
-    members.forEach(async (id, index) => {
-      if(id) {
-        const user = await User.findOne({ id });
-        project.contributors.members[index] = user;
-      }
-
-      if(index === (members.length - 1)) {
-        const data = {
-          user: verified.user.id,
-          project,
-        };
-
-        // View the assignment details of project as well
-        viewAssignment(req, res, data);
-      }
+    project.assignments = project.assignments.filter(a => {
+      return (a.active);
     });
-
+    fetchUserNames(project).then(() => {
+      res.send({
+        success: true,
+        project,
+      });
+    });
   } catch (err) {
     res.serverError(err);
   }
@@ -141,17 +124,12 @@ const remove = async (req, res) => {
     }
 
     // Deletes the project and get all its details
-    const project = await Project.destroy({ id }).fetch();
+    const project = await Project.findOne({ id, active: true });
     if(!project) {
       return sendBadRequest(res, NOT_FOUND);
     }
-
-    req.body = {
-      user: verified.user.id,
-      project: id
-    };
-    // Remove the project from assignments as well
-    unassign(req, res);
+    project.active = false;
+    await Project.updateOne({ id, active: true}).set(project);
 
     res.send({
       success: true,
@@ -162,7 +140,47 @@ const remove = async (req, res) => {
   }
 };
 
-// Get the details of all project and assignments of a user
+// Gets the details of all members in project... and returns the project with member details
+const fetchUserNames = (project) => {
+  return new Promise((resolve) => {
+    let result = project;
+    let { admin, assignments } = result;
+    if(assignments.length === 0) {
+      assignments = [''];
+    }
+    const requests = [];
+    // Adds admin details to project
+    requests.push(
+      User.findOne({ id: admin.id }).then((data) => {
+        const { name, username } = data;
+        admin.name = name;
+        admin.username = username;
+      })
+    );
+    // Adds details of each member 
+    assignments.forEach((item, index) => {
+      if(item) {
+        requests.push(
+          new Promise((res) => {
+            const { id } = item;
+            User.findOne({ id }).then((data) => {
+              const { name, username } = data;
+              assignments[index].name = name;
+              assignments[index].username = username;
+              res();
+            });
+          })
+        );
+      } 
+    });
+    // Sends response back, when all details are fetched
+    Promise.all(requests).then(() => {
+      resolve(result);
+    });
+  });
+};
+
+// Get the details of all projects of a user
 const fetchAll = async (req, res) => {
   try {
     //  Verify the token to authenticate the user
@@ -171,15 +189,33 @@ const fetchAll = async (req, res) => {
       return sendBadRequest(res, ACCESS_FORBIDDEN);
     }
 
-    // Get the details of all assignments, project of specified user
-    const user = req.body.user || verified.user.id;
-    const assignments = await Assignment.find({ user, active: true });
-    for(let key in assignments) {
-      assignments[key].project = await Project.findOne({ id: assignments[key].project });
-    }
-    res.send({
-      success: true,
-      assignment: assignments
+    // Get the details of projects
+    const user = verified.user.id;
+    const result = await Project.find({ active: true });
+    const projects = result.filter((p => {
+      let flag = p.admin.id === user;
+      p.isAdmin = flag;
+      p.assignments.forEach((a) => (a.active && a.id === user) && (flag = true));
+      return flag;
+    }));
+    const requests = [];
+
+    // Get details of all members in project
+    Object.keys(projects).forEach((key) => {
+      requests.push(
+        fetchUserNames(projects[key])
+        .then((data) => {
+          projects[key] = data;
+        })
+      );
+    });
+
+    // Send response back when details are fetched
+    Promise.all(requests).then(() => {
+      res.send({
+        success: true,
+        projects
+      });
     });
   } catch (err) {
     res.serverError(err);
@@ -195,8 +231,8 @@ const addMember = async (req, res) => {
       return sendBadRequest(res, ACCESS_FORBIDDEN);
     }
 
-    const { user, project, price } = req.body;
-    if(!user || !price) {
+    const { user, project, price, type } = req.body;
+    if(!project || !user || !price || !type) {
       return sendBadRequest(res, DATA_MISSING);
     }
 
@@ -206,31 +242,29 @@ const addMember = async (req, res) => {
     }
 
     // Check if user is already the member of this project
-    const data = await Project.findOne({ id: project });
-    if(data.contributors.members.includes(userResult.id)) {
+    const data = await Project.findOne({ id: project, active: true });
+    data.assignments.forEach((item) => {
+      if(item.active && item.id === userResult.id) {
+        return sendBadRequest(res, MEMBER_ALREADY_ADDED);
+      }
+    });
+    if(data.admin.id === userResult.id) {
       return sendBadRequest(res, MEMBER_ALREADY_ADDED);
     }
 
-    // Otherwise add it to the members of project
-    data.contributors.members.push(userResult.id);
-    req.body.user = userResult.id;
-
-    const result = await Project.updateOne({ id: project }).set(data);
-
-    let { admin, members } = result.contributors;
-    if(members.length === 0) {
-      members = [''];
-    }
-    // Get details of the admin of project ... for sending it in response
-    result.contributors.admin = await User.findOne({ id: admin });
-    members.forEach(async (id, index) => {
-      if(id) {
-        const user = await User.findOne({ id });
-        result.contributors.members[index] = user;
-      }
-      // Create a new assignment for this new member
-      if(index === (members.length - 1)) createAssignment(req, res, true, result);
+    // Adds a new assignment
+    data.assignments.push({
+      id: userResult.id,
+      price,
+      type,
+      active: true,
+      createdAt: new Date()
     });
+
+    // Update the project
+    const result = await Project.updateOne({ id: project, active: true }).set(data);
+    req.body.id = result.id;
+    view(req, res);
 
   } catch (err) {
     res.serverError(err);
@@ -251,19 +285,18 @@ const removeMember = async (req, res) => {
       return sendBadRequest(res, DATA_MISSING);
     }
 
-    const result = await Project.findOne({ id: project });
+    const result = await Project.findOne({ id: project, active: true });
     if(!result) {
       return sendBadRequest(res, NOT_FOUND);
     }
-    // Remove the user from members list
-    result.contributors.members.splice(result.contributors.members.indexOf(user), 1);
+    result.assignments.forEach((item, key) => {
+      if(item.id === user) {
+        result.assignments[key].active = false;
+        result.assignments[key].unassignedAt = new Date();
+      }
+    });
 
-    // Update the project details
     await Project.updateOne({ id: project }).set(result);
-
-    // Remove the assignment of user
-    unassign(req, res);
-    
     res.send({
       success: true
     });

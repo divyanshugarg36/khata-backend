@@ -7,13 +7,18 @@ module.exports = {
     description: {
       type: 'string',
     },
-    contributors: {
+    active: {
+      type: 'boolean',
+      defaultsTo: true,
+    },
+    admin: {
       type: 'json',
       columnType: 'object',
-      defaultsTo: {
-        admin: '',
-        members: [],
-      },
+    },
+    assignments: {
+      type: 'json',
+      columnType: 'array',
+      defaultsTo: [],
     },
   },
 };
