@@ -31,20 +31,14 @@ const login = (req, res) => {
 // Verifies the correctness of password [ Needed while updating the profile ]
 const verifyPassword = async (req, res) => {
   try {
-    // Verify the token to authenticate the user
-    const verified = verifyToken(req.headers);
-    if(!verified || !verified || !verified.success) {
-      res.send(verified);
-      return sendBadRequest(res, ACCESS_FORBIDDEN);
-    }
-
     const { body: data } = req;
+    const { user } = data;
     if(!data.password) {
       return sendBadRequest(res, DATA_MISSING);
     }
 
     // Simply perform the login function with that password... to verify if password works
-    req.body.username = verified.user.username;
+    req.body.username = user.username;
     login(req, res);
 
   } catch (err) {

@@ -5,8 +5,8 @@ module.exports.routes = {
 
   // User
   'POST /register': 'UserController.register',
-  'GET /user/fetch': 'UserController.fetch',
-  'GET /user/all': 'UserController.fetchAll',
+  'POST /user/fetch': 'UserController.fetch',
+  'POST /user/all': 'UserController.fetchAll',
   'PUT /user/update': 'UserController.update',
 
   // Project

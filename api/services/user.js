@@ -1,18 +1,12 @@
 const jwt = require('jsonwebtoken');
-const { generateHash, sendBadRequest, verifyToken } = require('../util');
+const { generateHash, sendBadRequest } = require('../util');
 const { ERROR_TYPES } = require('../const/errorTypes');
 
-const { ACCESS_FORBIDDEN, DATA_MISSING, EMAIL_ALREADY_USED, USERNAME_TAKEN, USER_NOT_FOUND } = ERROR_TYPES;
+const { DATA_MISSING, EMAIL_ALREADY_USED, USERNAME_TAKEN, USER_NOT_FOUND } = ERROR_TYPES;
 
 // To get the details of user from email address
 const fetch = async (req, res) => {
   try {
-    //  Verify the token to authenticate the user
-    const verified = verifyToken(req.headers);
-    if(!verified || !verified.success) {
-      return sendBadRequest(res, ACCESS_FORBIDDEN);
-    }
-
     // Checks for email address in request
     const { email } = req.body;
     if(!email) {
@@ -37,12 +31,6 @@ const fetch = async (req, res) => {
 // Get details of all the user
 const fetchAll = async (req, res) => {
   try {
-    //  Verify the token to authenticate the user
-    const verified = verifyToken(req.headers);
-    if(!verified || !verified.success) {
-      return sendBadRequest(res, ACCESS_FORBIDDEN);
-    }
-
     // Get detail of all users
     const users = await User.find({});
     if(!users) {
@@ -98,23 +86,17 @@ const register = async (req, res) => {
 // Updating details of the user
 const update = async (req, res) => {
   try {
-    //  Verify the token to authenticate the user
-    const verified = verifyToken(req.headers);
-    if(!verified || !verified.success) {
-      return sendBadRequest(res, ACCESS_FORBIDDEN);
-    }
-    
-    const { name, email, username, newPassword } = req.body;
+    const { name, email, username, newPassword, user } = req.body;
     
     // To check if email address already exists
     const emailResult = await User.findOne({ email });
-    if(emailResult && email !== verified.user.email) {
+    if(emailResult && email !== user.email) {
       return sendBadRequest(res, EMAIL_ALREADY_USED);
     }
     
     // To check if username is already taken
     const userResult = await User.findOne({ username });
-    if(userResult && username !== verified.user.username) {
+    if(userResult && username !== user.username) {
       return sendBadRequest(res, USERNAME_TAKEN);
     }
     
@@ -133,7 +115,7 @@ const update = async (req, res) => {
       data.password = hash;
 
       // Update the details of user
-      const user = await User.updateOne({ id: verified.user.id }).set(data);
+      const user = await User.updateOne({ id: user.id }).set(data);
       if(!user) {
         return sendBadRequest(res, USER_NOT_FOUND);
       }

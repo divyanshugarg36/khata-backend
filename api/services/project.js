@@ -1,25 +1,19 @@
-const { sendBadRequest, verifyToken } = require('../util');
+const { sendBadRequest } = require('../util');
 const { ERROR_TYPES } = require('../const/errorTypes');
 
-const { ACTION_FAILED, ACCESS_FORBIDDEN, DATA_MISSING, MEMBER_ALREADY_ADDED, NOT_FOUND, USER_NOT_FOUND } = ERROR_TYPES;
+const { ACTION_FAILED, DATA_MISSING, MEMBER_ALREADY_ADDED, NOT_FOUND, USER_NOT_FOUND } = ERROR_TYPES;
 
 // To create a new project by the admin
 const create = async (req, res) => {
   try {
-    // Verify the token to authenticate the user
-    const verified = verifyToken(req.headers);
-    if(!verified || !verified.success) {
-      return sendBadRequest(res, ACCESS_FORBIDDEN);
-    }
-
-    const { name, description, price, type } = req.body;
+    const { name, description, price, type, user } = req.body;
     if(!name || !description || !price || !type) {
       return sendBadRequest(res, DATA_MISSING);
     }
 
     // Set current logged in user as the admin of project
     const admin = {
-      id: verified.user.id,
+      id: user.id,
       price,
       type,
     };
@@ -43,14 +37,8 @@ const create = async (req, res) => {
 // To view the details of an individual project
 const view = async (req, res) => {
   try {
-    // Verify the token to authenticate the user
-    const verified = verifyToken(req.headers);
-    if(!verified || !verified.success) {
-      return sendBadRequest(res, ACCESS_FORBIDDEN);
-    }
-
     // Check if ID exits in the request
-    const { id } = req.body;
+    const { id, user } = req.body;
     if(!id) {
       return sendBadRequest(res, DATA_MISSING);
     }
@@ -61,7 +49,7 @@ const view = async (req, res) => {
       return sendBadRequest(res, NOT_FOUND);
     }
 
-    project.isAdmin = project.admin.id === verified.user.id;
+    project.isAdmin = project.admin.id === user.id;
 
     project.assignments = project.assignments.filter(a => {
       return (a.active);
@@ -80,12 +68,6 @@ const view = async (req, res) => {
 // To update the details of a project
 const update = async (req, res) => {
   try {
-    //  Verify the token to authenticate the user
-    const verified = verifyToken(req.headers);
-    if(!verified || !verified.success) {
-      return sendBadRequest(res, ACCESS_FORBIDDEN);
-    }
-
     // Send bad request if ID not found in request
     const { body: data } = req;
     if(!data.id) {
@@ -111,12 +93,6 @@ const update = async (req, res) => {
 // To remove a project
 const remove = async (req, res) => {
   try {
-    //  Verify the token to authenticate the user
-    const verified = verifyToken(req.headers);
-    if(!verified || !verified.success) {
-      return sendBadRequest(res, ACCESS_FORBIDDEN);
-    }
-
     // Send the bad request if ID not found in request
     const { id } = req.body;
     if(!id) {
@@ -183,19 +159,14 @@ const fetchUserNames = (project) => {
 // Get the details of all projects of a user
 const fetchAll = async (req, res) => {
   try {
-    //  Verify the token to authenticate the user
-    const verified = verifyToken(req.headers);
-    if(!verified || !verified.success) {
-      return sendBadRequest(res, ACCESS_FORBIDDEN);
-    }
-
+    const { user } = req.body;
     // Get the details of projects
-    const user = verified.user.id;
+    const userId = user.id;
     const result = await Project.find({ active: true });
     const projects = result.filter((p => {
-      let flag = p.admin.id === user;
+      let flag = p.admin.id === userId;
       p.isAdmin = flag;
-      p.assignments.forEach((a) => (a.active && a.id === user) && (flag = true));
+      p.assignments.forEach((a) => (a.active && a.id === userId) && (flag = true));
       return flag;
     }));
     const requests = [];
@@ -225,12 +196,6 @@ const fetchAll = async (req, res) => {
 // Adding a new member in the project
 const addMember = async (req, res) => {
   try {
-    //  Verify the token to authenticate the user
-    const verified = verifyToken(req.headers);
-    if(!verified || !verified.success) {
-      return sendBadRequest(res, ACCESS_FORBIDDEN);
-    }
-
     const { user, project, price, type } = req.body;
     if(!project || !user || !price || !type) {
       return sendBadRequest(res, DATA_MISSING);
@@ -274,12 +239,6 @@ const addMember = async (req, res) => {
 // To remove a member from the project
 const removeMember = async (req, res) => {
   try {
-    //  Verify the token to authenticate the user
-    const verified = verifyToken(req.headers);
-    if(!verified || !verified.success) {
-      return sendBadRequest(res, ACCESS_FORBIDDEN);
-    }
-
     const { user, project } = req.body;
     if(!user || !project) {
       return sendBadRequest(res, DATA_MISSING);
@@ -314,4 +273,3 @@ module.exports = {
   addMember,
   removeMember,
 };
-
