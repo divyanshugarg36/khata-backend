@@ -4,6 +4,9 @@ module.exports = {
       type: 'string',
       required: true,
     },
+    client: {
+      type: 'string',
+    },
     description: {
       type: 'string',
     },
