@@ -1,9 +1,9 @@
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
-const { sendBadRequest, verifyToken } = require('../util');
+const { sendBadRequest } = require('../util');
 const { ERROR_TYPES } = require('../const/errorTypes');
 
-const { ACCESS_FORBIDDEN, DATA_MISSING } = ERROR_TYPES;
+const { DATA_MISSING } = ERROR_TYPES;
 
 // To verify the username and password for login
 const login = (req, res) => {
