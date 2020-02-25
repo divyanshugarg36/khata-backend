@@ -7,6 +7,9 @@ module.exports = {
     client: {
       type: 'string',
     },
+    role: {
+      type: 'string',
+    },
     description: {
       type: 'string',
     },
