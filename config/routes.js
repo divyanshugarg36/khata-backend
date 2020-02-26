@@ -4,6 +4,7 @@ module.exports.routes = {
   'POST /verifypassword': 'AuthController.verifyPassword',
 
   // User
+  'POST /user/add': 'UserController.addMember',
   'POST /register': 'UserController.register',
   'POST /user/fetch': 'UserController.fetch',
   'POST /user/all': 'UserController.fetchAll',
