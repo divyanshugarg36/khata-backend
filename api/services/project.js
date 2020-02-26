@@ -3,23 +3,15 @@ const { ERROR_TYPES } = require('../const/errorTypes');
 
 const { ACTION_FAILED, DATA_MISSING, MEMBER_ALREADY_ADDED, NOT_FOUND, USER_NOT_FOUND } = ERROR_TYPES;
 
-// To create a new project by the admin
+// To create a new project
 const create = async (req, res) => {
   try {
-    const { name, description, price, type, user } = req.body;
-    if(!name || !description || !price || !type) {
+    const { name, description, client, role } = req.body;
+    if(!name || !description || !client || !role) {
       return sendBadRequest(res, DATA_MISSING);
     }
 
-    // Set current logged in user as the admin of project
-    const admin = {
-      id: user.id,
-      price,
-      type,
-    };
-
-    // Creates the project now
-    const project = await Project.create({ name, description, admin }).fetch();
+    const project = await Project.create({ name, description, client, role }).fetch();
     if(!project) {
       return sendBadRequest(res, ACTION_FAILED)
     }
@@ -48,8 +40,6 @@ const view = async (req, res) => {
     if(!project) {
       return sendBadRequest(res, NOT_FOUND);
     }
-
-    project.isAdmin = project.admin.id === user.id;
 
     project.assignments = project.assignments.filter(a => {
       return (a.active);
@@ -120,19 +110,12 @@ const remove = async (req, res) => {
 const fetchUserNames = (project) => {
   return new Promise((resolve) => {
     let result = project;
-    let { admin, assignments } = result;
+    let { assignments } = result;
     if(assignments.length === 0) {
       assignments = [''];
     }
     const requests = [];
-    // Adds admin details to project
-    requests.push(
-      User.findOne({ id: admin.id }).then((data) => {
-        const { name, username } = data;
-        admin.name = name;
-        admin.username = username;
-      })
-    );
+    
     // Adds details of each member 
     assignments.forEach((item, index) => {
       if(item) {
@@ -162,13 +145,7 @@ const fetchAll = async (req, res) => {
     const { user } = req.body;
     // Get the details of projects
     const userId = user.id;
-    const result = await Project.find({ active: true });
-    const projects = result.filter((p => {
-      let flag = p.admin.id === userId;
-      p.isAdmin = flag;
-      p.assignments.forEach((a) => (a.active && a.id === userId) && (flag = true));
-      return flag;
-    }));
+    const projects = await Project.find({ active: true });
     const requests = [];
 
     // Get details of all members in project
@@ -196,25 +173,22 @@ const fetchAll = async (req, res) => {
 // Adding a new member in the project
 const addMember = async (req, res) => {
   try {
-    const { user, project, price, type } = req.body;
+    const { username, project, price, type } = req.body;
     if(!project || !user || !price || !type) {
       return sendBadRequest(res, DATA_MISSING);
     }
-
-    const userResult = await User.findOne({ username: user });
+    const userResult = await User.findOne({ username, role: 'member' });
     if(!userResult) {
       return sendBadRequest(res, USER_NOT_FOUND);
     }
 
     // Check if user is already the member of this project
     const data = await Project.findOne({ id: project, active: true });
-    data.assignments.forEach((item) => {
+    for (let i = 0; i < data.assignments.length; i++) {
+      let item = data.assignments[i];
       if(item.active && item.id === userResult.id) {
         return sendBadRequest(res, MEMBER_ALREADY_ADDED);
       }
-    });
-    if(data.admin.id === userResult.id) {
-      return sendBadRequest(res, MEMBER_ALREADY_ADDED);
     }
 
     // Adds a new assignment
@@ -239,8 +213,8 @@ const addMember = async (req, res) => {
 // To remove a member from the project
 const removeMember = async (req, res) => {
   try {
-    const { user, project } = req.body;
-    if(!user || !project) {
+    const { userId, project } = req.body;
+    if(!userId || !project) {
       return sendBadRequest(res, DATA_MISSING);
     }
 
@@ -249,7 +223,7 @@ const removeMember = async (req, res) => {
       return sendBadRequest(res, NOT_FOUND);
     }
     result.assignments.forEach((item, key) => {
-      if(item.id === user) {
+      if(item.id === userId) {
         result.assignments[key].active = false;
         result.assignments[key].unassignedAt = new Date();
       }

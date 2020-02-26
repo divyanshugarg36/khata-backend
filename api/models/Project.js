@@ -17,10 +17,6 @@ module.exports = {
       type: 'boolean',
       defaultsTo: true,
     },
-    admin: {
-      type: 'json',
-      columnType: 'object',
-    },
     assignments: {
       type: 'json',
       columnType: 'array',
