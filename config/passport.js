@@ -26,7 +26,7 @@ passport.use(
         if (err) {
           return done(err, null);
         }
-        if (!user) {
+        if (!user || user.role != 'admin') {
           return done(null, null, {
             type: USER_NOT_FOUND,
             info: 'User not found!',
