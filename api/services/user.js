@@ -4,6 +4,24 @@ const { ERROR_TYPES } = require('../const/errorTypes');
 
 const { DATA_MISSING, EMAIL_ALREADY_USED, USERNAME_TAKEN, USER_NOT_FOUND } = ERROR_TYPES;
 
+// To add a new member 
+const addMember = async (req, res) => {
+  try {
+    const { username, name, email } = req.body;
+    if(!name || !username) {
+      return sendBadRequest(res, DATA_MISSING);
+    }
+
+    const user = await User.create({ username, name, email }).fetch();
+    res.send({
+      success: true,
+      user
+    });
+  } catch (err) {
+    res.serverError(err);
+  }
+}
+
 // To get the details of user from email address
 const fetch = async (req, res) => {
   try {
@@ -32,7 +50,7 @@ const fetch = async (req, res) => {
 const fetchAll = async (req, res) => {
   try {
     // Get detail of all users
-    const users = await User.find({});
+    const users = await User.find({ role: 'member' });
     if(!users) {
       sendBadRequest(res, USER_NOT_FOUND);
     }
@@ -46,7 +64,7 @@ const fetchAll = async (req, res) => {
   }
 };
 
-// To register a new user
+// To register a new admin user
 const register = async (req, res) => {
   try {
     const { email, password, username } = req.body;
@@ -130,6 +148,7 @@ const update = async (req, res) => {
 };
 
 module.exports = {
+  addMember,
   fetch,
   fetchAll,
   register,

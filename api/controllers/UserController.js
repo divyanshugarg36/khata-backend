@@ -1,4 +1,5 @@
 const {
+  addMember,
   fetch,
   fetchAll,
   register,
@@ -6,6 +7,7 @@ const {
 } = require('../services/user');
 
 module.exports = {
+  addMember,
   fetch,
   fetchAll,
   register,

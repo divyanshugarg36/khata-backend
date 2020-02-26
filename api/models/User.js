@@ -5,22 +5,19 @@ module.exports = {
     email: {
       type: 'string',
       isEmail: true,
-      required: true
     },
     username: {
       type: 'string',
-      required: true
     },
     password: {
       type: 'string',
-      required: true
     },
     name: {
       type: 'string'
     },
     role: {
       type: 'string',
-      defaultsTo: 'employee'
+      defaultsTo: 'member'
     }
   },
 
