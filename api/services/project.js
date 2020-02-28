@@ -173,8 +173,8 @@ const fetchAll = async (req, res) => {
 // Adding a new member in the project
 const addMember = async (req, res) => {
   try {
-    const { username, project, price, type } = req.body;
-    if(!project || !user || !price || !type) {
+    const { username, project, price, type, role } = req.body;
+    if(!project || !user || !price || !type || !role) {
       return sendBadRequest(res, DATA_MISSING);
     }
     const userResult = await User.findOne({ username, role: 'member' });
@@ -194,6 +194,7 @@ const addMember = async (req, res) => {
     // Adds a new assignment
     data.assignments.push({
       id: userResult.id,
+      role,
       price,
       type,
       active: true,
