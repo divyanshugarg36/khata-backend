@@ -11,14 +11,13 @@ const create = async (req, res) => {
       return sendBadRequest(res, DATA_MISSING);
     }
     const { name, client, role, assignments, description } = project;
-    const total = assignments.reduce((a, b) => Number(a.price) + Number(b.price));
     const items = [];
     assignments.map((a) => {
       items.push({
-        name: `${a.role} (${a.name})`,
-        hours: a.hours || '--',
+        name: a.title,
+        hours: a.hours,
         unitPrice: a.price,
-        cost: a.price
+        cost: a.cost
       });
     });
     const data = {
@@ -31,7 +30,7 @@ const create = async (req, res) => {
       date: new Date().toDateString(),
       description,
       items,
-      total
+      total: project.total
     };
 
     const invoice = await Invoice.create(data).fetch();
