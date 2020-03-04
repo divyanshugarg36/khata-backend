@@ -1,5 +1,6 @@
 const {
   addMember,
+  remove,
   fetch,
   fetchAll,
   register,
@@ -8,6 +9,7 @@ const {
 
 module.exports = {
   addMember,
+  remove,
   fetch,
   fetchAll,
   register,

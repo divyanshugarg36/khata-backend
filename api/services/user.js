@@ -12,6 +12,16 @@ const addMember = async (req, res) => {
       return sendBadRequest(res, DATA_MISSING);
     }
 
+    const userResult = await User.findOne({ username });
+    if(userResult) {
+      return sendBadRequest(res, USERNAME_TAKEN);
+    }
+
+    const emailResult = await User.findOne({ email });
+    if(emailResult) {
+      return sendBadRequest(res, EMAIL_ALREADY_USED);
+    }
+
     const user = await User.create({ username, name, email }).fetch();
     res.send({
       success: true,
@@ -22,17 +32,42 @@ const addMember = async (req, res) => {
   }
 }
 
+// To remove a member
+const remove = async (req, res) => {
+  try {
+    // Send the bad request if ID not found in request
+    const { id } = req.body;
+    if(!id) {
+      return sendBadRequest(res, DATA_MISSING);
+    }
+
+    // Deletes the project and get all its details
+    const member = await User.findOne({ id, role: 'member' });
+    if(!member) {
+      return sendBadRequest(res, NOT_FOUND);
+    }
+    await User.destroy({ id, role: 'member'});
+
+    res.send({
+      success: true,
+    });
+  } catch (err) {
+    res.serverError(err);
+  }
+};
+
+
 // To get the details of user from email address
 const fetch = async (req, res) => {
   try {
     // Checks for email address in request
-    const { email } = req.body;
-    if(!email) {
+    const { id } = req.body;
+    if(!id) {
       return sendBadRequest(res, DATA_MISSING);
     }
 
     // Get details of user
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ id });
     if(!user) {
       return sendBadRequest(res, USER_NOT_FOUND);
     }
@@ -104,17 +139,20 @@ const register = async (req, res) => {
 // Updating details of the user
 const update = async (req, res) => {
   try {
-    const { name, email, username, newPassword, user } = req.body;
-    
+    const { id, name, email, username, newPassword, user } = req.body;
+
+    const userId = id || user.id;
+    const userData = await User.findOne({ id: userId });
+
     // To check if email address already exists
     const emailResult = await User.findOne({ email });
-    if(emailResult && email !== user.email) {
+    if(emailResult && email !== userData.email) {
       return sendBadRequest(res, EMAIL_ALREADY_USED);
     }
     
     // To check if username is already taken
     const userResult = await User.findOne({ username });
-    if(userResult && username !== user.username) {
+    if(userResult && username !== userData.username) {
       return sendBadRequest(res, USERNAME_TAKEN);
     }
     
@@ -122,7 +160,7 @@ const update = async (req, res) => {
       name,
       email,
       username,
-      password: newPassword
+      password: newPassword || ' '
     };
     
     // Generate the hash of new password
@@ -132,8 +170,12 @@ const update = async (req, res) => {
       }
       data.password = hash;
 
+      if (!newPassword) {
+        delete data.password;
+      }
+
       // Update the details of user
-      const user = await User.updateOne({ id: user.id }).set(data);
+      const user = await User.updateOne({ id: userId }).set(data);
       if(!user) {
         return sendBadRequest(res, USER_NOT_FOUND);
       }
@@ -149,6 +191,7 @@ const update = async (req, res) => {
 
 module.exports = {
   addMember,
+  remove,
   fetch,
   fetchAll,
   register,
