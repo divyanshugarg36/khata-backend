@@ -59,13 +59,13 @@ const view = async (req, res) => {
 const update = async (req, res) => {
   try {
     // Send bad request if ID not found in request
-    const { body: data } = req;
-    if(!data.id) {
+    const { id, data } = req.body;
+    if(!id || !data) {
       return sendBadRequest(res, DATA_MISSING);
     }
 
     // Update the details of the project
-    const project = await Project.updateOne({ id: data.id }).set(data);
+    const project = await Project.updateOne({ id }).set(data);
     if(!project) {
       return sendBadRequest(res, NOT_FOUND);
     }
