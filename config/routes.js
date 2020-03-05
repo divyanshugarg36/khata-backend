@@ -22,4 +22,7 @@ module.exports.routes = {
 
   // Invoice
   'POST /invoice/create': 'InvoiceController.create',
+
+  // History
+  'POST /history/get': 'HistoryController.getHistory',
 };
