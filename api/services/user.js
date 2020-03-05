@@ -121,7 +121,7 @@ const register = async (req, res) => {
       return sendBadRequest(res, USERNAME_TAKEN);
     }
 
-    const user = await User.create({ email, password, username }).fetch();
+    const user = await User.create({ email, password, username, role: 'admin' }).fetch();
 
     // Create token of the user & send it back to client
     const token = jwt.sign(user, sails.config.secret, { expiresIn: sails.config.expiresIn });
