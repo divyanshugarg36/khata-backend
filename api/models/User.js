@@ -13,11 +13,15 @@ module.exports = {
       type: 'string',
     },
     name: {
-      type: 'string'
+      type: 'string',
+    },
+    active: {
+      type: 'boolean',
+      defaultsTo: true,
     },
     role: {
       type: 'string',
-      defaultsTo: 'member'
+      defaultsTo: 'member',
     }
   },
 
