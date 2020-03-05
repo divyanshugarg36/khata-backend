@@ -142,9 +142,7 @@ const fetchUserNames = (project) => {
 // Get the details of all projects of a user
 const fetchAll = async (req, res) => {
   try {
-    const { user } = req.body;
     // Get the details of projects
-    const userId = user.id;
     const projects = await Project.find({ active: true });
     const requests = [];
 
@@ -177,7 +175,7 @@ const addMember = async (req, res) => {
     if(!project || !user || !price || !type || !role) {
       return sendBadRequest(res, DATA_MISSING);
     }
-    const userResult = await User.findOne({ username, role: 'member' });
+    const userResult = await User.findOne({ username, role: 'member', active: true });
     if(!userResult) {
       return sendBadRequest(res, USER_NOT_FOUND);
     }
