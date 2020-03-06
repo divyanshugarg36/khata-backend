@@ -17,7 +17,8 @@ const create = async (req, res) => {
         name: a.title,
         hours: a.hours,
         unitPrice: a.price,
-        cost: a.cost
+        cost: a.cost,
+        tasks: a.tasks,
       });
     });
     const data = {
