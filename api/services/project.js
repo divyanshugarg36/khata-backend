@@ -30,7 +30,7 @@ const create = async (req, res) => {
 const view = async (req, res) => {
   try {
     // Check if ID exits in the request
-    const { id, user } = req.body;
+    const { id } = req.body;
     if(!id) {
       return sendBadRequest(res, DATA_MISSING);
     }
@@ -40,15 +40,17 @@ const view = async (req, res) => {
     if(!project) {
       return sendBadRequest(res, NOT_FOUND);
     }
-
-    project.assignments = project.assignments.filter(a => {
-      return (a.active);
+    const users = await User.find({ role: 'member' });
+    project.assignments = project.assignments.filter(a => a.active);
+    project.assignments.forEach((a) => {
+      const user = users.find((u) => u.id === a.id);
+      a.name = user.name;
+      a.username = user.username;
     });
-    fetchUserNames(project).then(() => {
-      res.send({
-        success: true,
-        project,
-      });
+
+    res.send({
+      success: true,
+      project,
     });
   } catch (err) {
     res.serverError(err);
@@ -106,62 +108,24 @@ const remove = async (req, res) => {
   }
 };
 
-// Gets the details of all members in project... and returns the project with member details
-const fetchUserNames = (project) => {
-  return new Promise((resolve) => {
-    let result = project;
-    let { assignments } = result;
-    if(assignments.length === 0) {
-      assignments = [''];
-    }
-    const requests = [];
-    
-    // Adds details of each member 
-    assignments.forEach((item, index) => {
-      if(item) {
-        requests.push(
-          new Promise((res) => {
-            const { id } = item;
-            User.findOne({ id }).then((data) => {
-              const { name, username } = data;
-              assignments[index].name = name;
-              assignments[index].username = username;
-              res();
-            });
-          })
-        );
-      } 
-    });
-    // Sends response back, when all details are fetched
-    Promise.all(requests).then(() => {
-      resolve(result);
-    });
-  });
-};
-
 // Get the details of all projects of a user
 const fetchAll = async (req, res) => {
   try {
     // Get the details of projects
     const projects = await Project.find({ active: true });
-    const requests = [];
+    const users = await User.find({ role: 'member' });
 
-    // Get details of all members in project
-    Object.keys(projects).forEach((key) => {
-      requests.push(
-        fetchUserNames(projects[key])
-        .then((data) => {
-          projects[key] = data;
-        })
-      );
+    projects.forEach((p) => {
+      p.assignments.forEach((a) => {
+        const user = users.find((u) => u.id === a.id);
+        a.name = user.name;
+        a.username = user.username;
+      });
     });
 
-    // Send response back when details are fetched
-    Promise.all(requests).then(() => {
-      res.send({
-        success: true,
-        projects
-      });
+    res.send({
+      success: true,
+      projects
     });
   } catch (err) {
     res.serverError(err);
