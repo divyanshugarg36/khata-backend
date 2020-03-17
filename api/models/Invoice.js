@@ -9,7 +9,11 @@ module.exports = {
       columnType: 'object',
       defaultsTo: {},
     },
-    date: {
+    start: {
+      type: 'string',
+      columnType: 'date',
+    },
+    end: {
       type: 'string',
       columnType: 'date',
     },
