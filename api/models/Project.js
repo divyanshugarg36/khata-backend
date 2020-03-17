@@ -17,6 +17,9 @@ module.exports = {
       type: 'boolean',
       defaultsTo: true,
     },
+    togglId: {
+      type: 'string',
+    },
     assignments: {
       type: 'json',
       columnType: 'array',
