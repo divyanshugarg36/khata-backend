@@ -22,7 +22,11 @@ module.exports = {
     role: {
       type: 'string',
       defaultsTo: 'member',
-    }
+    },
+    toggl: {
+      type: 'json',
+      defaultsTo: {}
+    },
   },
 
   customToJSON: function() {
