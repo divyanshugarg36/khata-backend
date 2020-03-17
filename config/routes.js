@@ -22,6 +22,9 @@ module.exports.routes = {
 
   // Invoice
   'POST /invoice/create': 'InvoiceController.create',
+  'POST /invoice/save': 'InvoiceController.save',
+  'POST /invoice/all': 'InvoiceController.fetchAll',
+  'POST /invoice/view': 'InvoiceController.view',
 
   // History
   'POST /history/get': 'HistoryController.getHistory',
