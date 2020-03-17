@@ -6,21 +6,21 @@ const { ACTION_FAILED, DATA_MISSING, MEMBER_ALREADY_ADDED, NOT_FOUND, USER_NOT_F
 // To create a new project
 const create = async (req, res) => {
   try {
-    const { name, description, client, role } = req.body;
+    const { name, description, client, role, togglId } = req.body;
     if(!name || !description || !client || !role) {
       return sendBadRequest(res, DATA_MISSING);
     }
 
-    const project = await Project.create({ name, description, client, role }).fetch();
+    const project = await Project.create({ name, description, client, role, togglId }).fetch();
     if(!project) {
-      return sendBadRequest(res, ACTION_FAILED)
+      return sendBadRequest(res, ACTION_FAILED);
     }
-    
+
     res.send({
       success: true,
       project
     });
-    
+
   } catch (err) {
     res.serverError(err);
   }
@@ -34,7 +34,7 @@ const view = async (req, res) => {
     if(!id) {
       return sendBadRequest(res, DATA_MISSING);
     }
-    
+
     // Send bad request if project not found
     const project = await Project.findOne({ id });
     if(!project) {
@@ -199,7 +199,7 @@ const removeMember = async (req, res) => {
   } catch(err) {
     res.serverError(err);
   }
-}
+};
 
 module.exports = {
   create,

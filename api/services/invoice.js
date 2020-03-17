@@ -8,11 +8,12 @@ const create = async (req, res) => {
     const { project: id, start, end } = req.body;
     const project = await Project.findOne({id});
     const users = await User.find({ role: 'member' });
-    const { name, client, role, description, assignments } = project;
+    const { name, client, role, description, assignments, togglId } = project;
     const items = assignments.filter((a) => a.active).map((a) => {
-      a.name = users.find((u) => u.id === a.id).name;
+      const { name, toggl: { uid } } = users.find((u) => u.id === a.id);
       return {
-        name: `${a.role} (${a.name})`,
+        uid,
+        name: `${a.role} (${name})`,
         type: a.type,
         hours: a.type === 'Hourly' ? 0 : 'NA',
         price: Number(a.price),
@@ -26,6 +27,7 @@ const create = async (req, res) => {
         name,
         client,
         role,
+        togglId,
       },
       description,
       items,
