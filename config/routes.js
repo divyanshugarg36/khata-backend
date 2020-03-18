@@ -4,19 +4,19 @@ module.exports.routes = {
   'POST /verifypassword': 'AuthController.verifyPassword',
 
   // User
-  'POST /user/add': 'UserController.addMember',
+  'POST /user/add': 'UserController.createMember',
   'POST /register': 'UserController.register',
-  'POST /user/fetch': 'UserController.fetch',
+  'POST /user/fetch': 'UserController.fetchUser',
   'POST /user/all': 'UserController.fetchAll',
-  'PUT /user/update': 'UserController.update',
+  'PUT /user/update': 'UserController.updateProfile',
   'POST /user/update/password': 'UserController.updatePassword',
-  'POST /user/remove': 'UserController.remove',
+  'POST /user/remove': 'UserController.removeMember',
 
   // Project
-  'POST /project/add': 'ProjectController.create',
-  'POST /project/view': 'ProjectController.view',
-  'PUT /project/update': 'ProjectController.update',
-  'POST /project/remove': 'ProjectController.remove',
+  'POST /project/add': 'ProjectController.createProject',
+  'POST /project/view': 'ProjectController.viewProject',
+  'PUT /project/update': 'ProjectController.updateProject',
+  'POST /project/remove': 'ProjectController.removeProject',
   'POST /project/all': 'ProjectController.fetchAll',
   'POST /project/member/add': 'ProjectController.addMember',
   'POST /project/member/remove': 'ProjectController.removeMember',

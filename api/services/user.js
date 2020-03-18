@@ -4,8 +4,8 @@ const { ERROR_TYPES } = require('../const/errorTypes');
 
 const { DATA_MISSING, EMAIL_ALREADY_USED, USERNAME_TAKEN, USER_NOT_FOUND } = ERROR_TYPES;
 
-// To add a new member
-const addMember = async (req, res) => {
+// To create a new member
+const createMember = async (req, res) => {
   try {
     const { username, name, email, toggl } = req.body;
     if(!name || !username) {
@@ -33,7 +33,7 @@ const addMember = async (req, res) => {
 };
 
 // To remove a member
-const remove = async (req, res) => {
+const removeMember = async (req, res) => {
   try {
     // Send the bad request if ID not found in request
     const { id } = req.body;
@@ -58,7 +58,7 @@ const remove = async (req, res) => {
 
 
 // To get the details of user from email address
-const fetch = async (req, res) => {
+const fetchUser = async (req, res) => {
   try {
     // Checks for ID in request
     const { id, user } = req.body;
@@ -135,7 +135,7 @@ const register = async (req, res) => {
 };
 
 // Updating details of the user
-const update = async (req, res) => {
+const updateProfile = async (req, res) => {
   try {
     const { id, name, email, username, toggl, user } = req.body;
     const userId = id || user.id;
@@ -180,11 +180,11 @@ const updatePassword = async (req, res) => {
 };
 
 module.exports.UserController = {
-  addMember,
-  remove,
-  fetch,
+  createMember,
+  removeMember,
+  fetchUser,
   fetchAll,
   register,
-  update,
+  updateProfile,
   updatePassword,
 };

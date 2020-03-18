@@ -4,7 +4,7 @@ const { ERROR_TYPES } = require('../const/errorTypes');
 const { ACTION_FAILED, DATA_MISSING, MEMBER_ALREADY_ADDED, NOT_FOUND, USER_NOT_FOUND } = ERROR_TYPES;
 
 // To create a new project
-const create = async (req, res) => {
+const createProject = async (req, res) => {
   try {
     const { name, description, client, role, togglId } = req.body;
     if(!name || !description || !client || !role) {
@@ -27,7 +27,7 @@ const create = async (req, res) => {
 };
 
 // To view the details of an individual project
-const view = async (req, res) => {
+const viewProject = async (req, res) => {
   try {
     // Check if ID exits in the request
     const { id } = req.body;
@@ -58,7 +58,7 @@ const view = async (req, res) => {
 };
 
 // To update the details of a project
-const update = async (req, res) => {
+const updateProject = async (req, res) => {
   try {
     // Send bad request if ID not found in request
     const { id, data } = req.body;
@@ -83,7 +83,7 @@ const update = async (req, res) => {
 };
 
 // To remove a project
-const remove = async (req, res) => {
+const removeProject = async (req, res) => {
   try {
     // Send the bad request if ID not found in request
     const { id } = req.body;
@@ -137,14 +137,7 @@ const addMember = async (req, res) => {
     if(isAlreadyAdded) {
       return sendBadRequest(res, MEMBER_ALREADY_ADDED);
     }
-    data.assignments.push({
-      id: userResult.id,
-      role,
-      price,
-      type,
-      active: true,
-      createdAt: new Date()
-    });
+    data.assignments.push({ id: userResult.id, role, price, type, active: true, createdAt: new Date() });
     const result = await Project.updateOne({ id: project, active: true }).set(data);
     req.body.id = result.id;
     view(req, res);
@@ -182,10 +175,10 @@ const removeMember = async (req, res) => {
 };
 
 module.exports.ProjectController = {
-  create,
-  view,
-  update,
-  remove,
+  createProject,
+  viewProject,
+  updateProject,
+  removeProject,
   fetchAll,
   addMember,
   removeMember,
