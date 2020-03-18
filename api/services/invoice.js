@@ -6,35 +6,19 @@ const { ACTION_FAILED, DATA_MISSING, NOT_FOUND } = ERROR_TYPES;
 const create = async (req, res) => {
   try {
     const { project: id, start, end } = req.body;
-    const project = await Project.findOne({id});
+    const { name, client, role, description, assignments, togglId } = await Project.findOne({id});
     const users = await User.find({ role: 'member' });
-    const { name, client, role, description, assignments, togglId } = project;
     const items = assignments.filter((a) => a.active).map((a) => {
       const { name, toggl: { uid } } = users.find((u) => u.id === a.id);
-      return {
-        uid,
-        name: `${a.role} (${name})`,
-        type: a.type,
-        hours: a.type === 'Hourly' ? 0 : 'NA',
-        price: Number(a.price),
-        cost: Number(a.price),
-        tasks: []
-      };
+      a.name = `${a.role} (${name})`;
+      a.uid = uid;
+      a.hours = a.type === 'Hourly' ? 0 : 'NA';
+      a.price = a.cost = Number(a.price);
+      return a;
     });
-    const data = {
-      invoiceNumber: Math.random().toString(32).slice(2, 7).toUpperCase(),
-      project: {
-        name,
-        client,
-        role,
-        togglId,
-      },
-      description,
-      items,
-      total: 0,
-      start,
-      end,
-    };
+    const invoiceNumber = Math.random().toString(32).slice(2, 7).toUpperCase();
+    const project = { name, client, role, togglId };
+    const data = { invoiceNumber, project, description, items, total: 0, start, end };
     const invoice = await Invoice.create(data).fetch();
     res.send({
       success: true,
