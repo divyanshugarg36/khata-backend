@@ -9,6 +9,7 @@ module.exports.routes = {
   'POST /user/fetch': 'UserController.fetch',
   'POST /user/all': 'UserController.fetchAll',
   'PUT /user/update': 'UserController.update',
+  'POST /user/update/password': 'UserController.updatePassword',
   'POST /user/remove': 'UserController.remove',
 
   // Project

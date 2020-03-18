@@ -5,6 +5,7 @@ const {
   fetchAll,
   register,
   update,
+  updatePassword,
 } = require('../services/user');
 
 module.exports = {
@@ -14,4 +15,5 @@ module.exports = {
   fetchAll,
   register,
   update,
+  updatePassword,
 };

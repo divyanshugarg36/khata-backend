@@ -137,50 +137,41 @@ const register = async (req, res) => {
 // Updating details of the user
 const update = async (req, res) => {
   try {
-    const { id, name, email, username, newPassword, toggl, user } = req.body;
-
+    const { id, name, email, username, toggl, user } = req.body;
     const userId = id || user.id;
     const userData = await User.findOne({ id: userId, active: true });
 
-    // To check if email address already exists
     const emailResult = await User.findOne({ email, active: true });
     if(emailResult && email !== userData.email) {
       return sendBadRequest(res, EMAIL_ALREADY_USED);
     }
-
-    // To check if username is already taken
     const userResult = await User.findOne({ username, active: true });
     if(userResult && username !== userData.username) {
       return sendBadRequest(res, USERNAME_TAKEN);
     }
+    const data = { name, email, username, toggl };
 
-    const data = {
-      name,
-      email,
-      username,
-      password: newPassword || ' ',
-      toggl,
-    };
+    const result = await User.updateOne({ id: userId, active: true }).set(data);
+    res.send({
+      success: true,
+      user: result
+    });
+  } catch (err) {
+    res.serverError(err);
+  }
+};
 
-    // Generate the hash of new password
-    generateHash(data.password, async (err, hash) => {
+const updatePassword = async (req, res) => {
+  try {
+    const { password, user } = req.body;
+    generateHash(password, async (err, hash) => {
       if(err) {
         return false;
       }
-      data.password = hash;
-
-      if (!newPassword) {
-        delete data.password;
-      }
-
-      // Update the details of user
-      const user = await User.updateOne({ id: userId, active: true }).set(data);
-      if(!user) {
-        return sendBadRequest(res, USER_NOT_FOUND);
-      }
+      const result = await User.updateOne({ id: user.id, active: true }).set({password: hash});
       res.send({
         success: true,
-        user
+        user: result
       });
     });
   } catch (err) {
@@ -195,4 +186,5 @@ module.exports = {
   fetchAll,
   register,
   update,
+  updatePassword,
 };
