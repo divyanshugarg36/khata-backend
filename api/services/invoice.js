@@ -13,7 +13,7 @@ const create = async (req, res) => {
       a.name = `${a.role} (${name})`;
       a.uid = uid;
       a.hours = a.type === 'Hourly' ? 0 : 'NA';
-      a.price = a.cost = Number(a.price);
+      a.cost = 0;
       return a;
     });
     const invoiceNumber = Math.random().toString(32).slice(2, 7).toUpperCase();
