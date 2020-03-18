@@ -33,7 +33,7 @@ const createMember = async (req, res) => {
 };
 
 // To remove a member
-const removeMember = async (req, res) => {
+const deleteMember = async (req, res) => {
   try {
     // Send the bad request if ID not found in request
     const { id } = req.body;
@@ -79,10 +79,9 @@ const fetchUser = async (req, res) => {
   }
 };
 
-// Get details of all the user
-const fetchAll = async (req, res) => {
+// Get details of all the members
+const fetchAllMembers = async (req, res) => {
   try {
-    // Get detail of all users
     const users = await User.find({ role: 'member', active: true });
     if(!users) {
       sendBadRequest(res, USER_NOT_FOUND);
@@ -181,9 +180,9 @@ const updatePassword = async (req, res) => {
 
 module.exports.UserController = {
   createMember,
-  removeMember,
+  deleteMember,
   fetchUser,
-  fetchAll,
+  fetchAllMembers,
   register,
   updateProfile,
   updatePassword,

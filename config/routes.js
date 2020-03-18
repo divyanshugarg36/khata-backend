@@ -7,17 +7,17 @@ module.exports.routes = {
   'POST /user/add': 'UserController.createMember',
   'POST /register': 'UserController.register',
   'POST /user/fetch': 'UserController.fetchUser',
-  'POST /user/all': 'UserController.fetchAll',
+  'POST /user/all': 'UserController.fetchAllMembers',
   'PUT /user/update': 'UserController.updateProfile',
   'POST /user/update/password': 'UserController.updatePassword',
-  'POST /user/remove': 'UserController.removeMember',
+  'POST /user/remove': 'UserController.deleteMember',
 
   // Project
   'POST /project/add': 'ProjectController.createProject',
   'POST /project/view': 'ProjectController.viewProject',
   'PUT /project/update': 'ProjectController.updateProject',
   'POST /project/remove': 'ProjectController.removeProject',
-  'POST /project/all': 'ProjectController.fetchAll',
+  'POST /project/all': 'ProjectController.fetchAllProjects',
   'POST /project/member/add': 'ProjectController.addMember',
   'POST /project/member/remove': 'ProjectController.removeMember',
 

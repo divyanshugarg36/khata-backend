@@ -179,7 +179,7 @@ module.exports.ProjectController = {
   viewProject,
   updateProject,
   removeProject,
-  fetchAll,
+  fetchAllProjects,
   addMember,
   removeMember,
 };
