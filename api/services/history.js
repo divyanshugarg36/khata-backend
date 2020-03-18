@@ -1,30 +1,36 @@
+const makeEntries = (iterator, entity, name, members) => {
+  const history = [];
+  iterator.forEach((i) => {
+    const member = members && members.find((m) => m.id === i.id).name;
+    history.push({
+      name: name || i.name,
+      date: new Date(i.createdAt),
+      member,
+      message: `${entity}_${name ? 'ADDED' : 'CREATED'}`
+    });
+    if(!i.active) {
+      history.push({
+        name: name || i.name,
+        date: new Date(name ? i.unassignedAt : i.updatedAt),
+        member,
+        message: `${entity}_${name ? 'REMOVED' : 'DELETED'}`
+      });
+    }
+  });
+  return history;
+};
+
 const getHistory = async (req, res) => {
   try {
     const members = await User.find({ role: 'member' });
     const projects = await Project.find({});
-    const history = [];
-
-    members.forEach((m) => {
-      history.push({ name: m.name, date: m.createdAt, message: 'MEMBER_CREATED' });
-      if(!m.active) {
-        history.push({ name: m.name, date: m.updatedAt, message: 'MEMBER_DELETED' });
-      }
-    });
-
+    const memberEntries = makeEntries(members, 'MEMBER');
+    const projectEntries = makeEntries(projects, 'PROJECT');
+    let assignmentEntries = [];
     projects.forEach((p) => {
-      history.push({ name: p.name, date: p.createdAt, message: 'PROJECT_CREATED' });
-      if(!p.active) {
-        history.push({ name: p.name, date: p.updatedAt, message: 'PROJECT_DELETED' });
-      }
-      p.assignments.forEach((a) => {
-        const member = members.find((m) => m.id === a.id).name;
-        history.push({ name: p.name, date: a.createdAt, member, message: 'MEMBER_ADDED' });
-        if(!a.active) {
-          history.push({ name: p.name, date: a.updatedAt, member, message: 'MEMBER_REMOVED' });
-        }
-      });
+      assignmentEntries = assignmentEntries.concat(makeEntries(p.assignments, 'MEMBER', p.name, members));
     });
-
+    const history = [...memberEntries, ...projectEntries, ...assignmentEntries];
     history.sort((a, b) => a.date - b.date);
     res.send({
       success: true,
