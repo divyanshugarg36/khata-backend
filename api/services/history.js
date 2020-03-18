@@ -3,12 +3,14 @@ const getHistory = async (req, res) => {
     const members = await User.find({ role: 'member' });
     const projects = await Project.find({});
     const history = [];
+
     members.forEach((m) => {
       history.push({ name: m.name, date: m.createdAt, message: 'MEMBER_CREATED' });
       if(!m.active) {
         history.push({ name: m.name, date: m.updatedAt, message: 'MEMBER_DELETED' });
       }
     });
+
     projects.forEach((p) => {
       history.push({ name: p.name, date: p.createdAt, message: 'PROJECT_CREATED' });
       if(!p.active) {
@@ -22,6 +24,7 @@ const getHistory = async (req, res) => {
         }
       });
     });
+
     history.sort((a, b) => a.date - b.date);
     res.send({
       success: true,
