@@ -132,17 +132,11 @@ const addMember = async (req, res) => {
     if(!userResult) {
       return sendBadRequest(res, USER_NOT_FOUND);
     }
-
-    // Check if user is already the member of this project
     const data = await Project.findOne({ id: project, active: true });
-    for (let i = 0; i < data.assignments.length; i++) {
-      let item = data.assignments[i];
-      if(item.active && item.id === userResult.id) {
-        return sendBadRequest(res, MEMBER_ALREADY_ADDED);
-      }
+    const isAlreadyAdded = data.assignments.find((a) => a.id === userResult.id);
+    if(isAlreadyAdded) {
+      return sendBadRequest(res, MEMBER_ALREADY_ADDED);
     }
-
-    // Adds a new assignment
     data.assignments.push({
       id: userResult.id,
       role,
@@ -151,12 +145,9 @@ const addMember = async (req, res) => {
       active: true,
       createdAt: new Date()
     });
-
-    // Update the project
     const result = await Project.updateOne({ id: project, active: true }).set(data);
     req.body.id = result.id;
     view(req, res);
-
   } catch (err) {
     res.serverError(err);
   }
