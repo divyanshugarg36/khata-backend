@@ -179,7 +179,7 @@ const updatePassword = async (req, res) => {
   }
 };
 
-module.exports = {
+module.exports.UserController = {
   addMember,
   remove,
   fetch,

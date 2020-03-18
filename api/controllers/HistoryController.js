@@ -1,7 +1,2 @@
-const {
-  getHistory,
-} = require('../services/history');
-
-module.exports = {
-  getHistory,
-};
+const { HistoryController } = require('../services/history');
+module.exports = HistoryController;

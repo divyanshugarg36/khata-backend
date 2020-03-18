@@ -79,7 +79,7 @@ const view = async (req, res) => {
   }
 };
 
-module.exports = {
+module.exports.InvoiceController = {
   create,
   save,
   fetchAll,

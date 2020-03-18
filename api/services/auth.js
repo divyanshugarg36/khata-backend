@@ -46,7 +46,7 @@ const verifyPassword = async (req, res) => {
   }
 };
 
-module.exports = {
+module.exports.AuthController = {
   login,
   verifyPassword
 };

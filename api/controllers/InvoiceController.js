@@ -1,13 +1,2 @@
-const {
-  create,
-  save,
-  fetchAll,
-  view,
-} = require('../services/invoice');
-
-module.exports = {
-  create,
-  save,
-  fetchAll,
-  view,
-};
+const { InvoiceController } = require('../services/invoice');
+module.exports = InvoiceController;

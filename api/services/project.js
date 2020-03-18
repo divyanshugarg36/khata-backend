@@ -190,7 +190,7 @@ const removeMember = async (req, res) => {
   }
 };
 
-module.exports = {
+module.exports.ProjectController = {
   create,
   view,
   update,

@@ -41,6 +41,6 @@ const getHistory = async (req, res) => {
   }
 };
 
-module.exports = {
+module.exports.HistoryController = {
   getHistory,
 };
