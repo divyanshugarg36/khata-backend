@@ -111,18 +111,7 @@ const remove = async (req, res) => {
 // Get the details of all projects of a user
 const fetchAll = async (req, res) => {
   try {
-    // Get the details of projects
     const projects = await Project.find({ active: true });
-    const users = await User.find({ role: 'member' });
-
-    projects.forEach((p) => {
-      p.assignments.forEach((a) => {
-        const user = users.find((u) => u.id === a.id);
-        a.name = user.name;
-        a.username = user.username;
-      });
-    });
-
     res.send({
       success: true,
       projects
