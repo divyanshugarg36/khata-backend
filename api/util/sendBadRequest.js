@@ -1,9 +1,9 @@
-const { ERROR_INFO } = require('../const/errorInfo');
+const { ERROR_TYPES } = require('../const/errorTypes');
 
 module.exports = (res, err) => {
   res.badRequest({
-    type: err,
-    info: ERROR_INFO[err]
+    type: _.invert(ERROR_TYPES)[err],
+    info: err
   });
 };
 
