@@ -8,7 +8,7 @@ module.exports = {
   createMember: async (req, res) => {
     try {
       const { username, name, email, toggl } = req.body;
-      if(!name || !username) {
+      if(!name || !username || !email) {
         return sendBadRequest(res, DATA_MISSING);
       }
 
