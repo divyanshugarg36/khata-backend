@@ -8,7 +8,7 @@ module.exports.routes = {
   'POST /register': 'UserController.register',
   'POST /user/fetch': 'UserController.fetchUser',
   'POST /user/all': 'UserController.fetchAllMembers',
-  'PUT /user/update': 'UserController.updateProfile',
+  'POST /user/update': 'UserController.updateProfile',
   'POST /user/update/password': 'UserController.updatePassword',
   'POST /user/remove': 'UserController.deleteMember',
 
