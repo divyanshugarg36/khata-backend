@@ -32,7 +32,7 @@ module.exports = {
         assignmentEntries = assignmentEntries.concat(makeEntries(p.assignments, 'MEMBER', p.name, members));
       });
       const history = [...memberEntries, ...projectEntries, ...assignmentEntries];
-      history.sort((a, b) => a.date - b.date);
+      history.sort((a, b) => b.date - a.date);
       res.send({
         success: true,
         history,
